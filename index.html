@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Student Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- ===== SIDEBAR / NAV ===== -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Dashboard navigation">
+    <div class="sidebar-header">
+      <span class="sidebar-logo">✦</span>
+      <span class="sidebar-title">Focus</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-section="overview" aria-label="Overview">
+        <span class="nav-icon">◈</span>
+        <span class="nav-label">Overview</span>
+      </button>
+      <button class="nav-item" data-section="tasks" aria-label="Tasks">
+        <span class="nav-icon">◻</span>
+        <span class="nav-label">Tasks</span>
+      </button>
+      <button class="nav-item" data-section="notes" aria-label="Notes">
+        <span class="nav-icon">◇</span>
+        <span class="nav-label">Notes</span>
+      </button>
+      <button class="nav-item" data-section="timer" aria-label="Timer">
+        <span class="nav-icon">◎</span>
+        <span class="nav-label">Timer</span>
+      </button>
+      <button class="nav-item" data-section="habits" aria-label="Habits">
+        <span class="nav-icon">◑</span>
+        <span class="nav-label">Habits</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode" title="Ctrl+D">
+        <span id="themeIcon">☾</span>
+      </button>
+      <div class="color-swatches" role="group" aria-label="Accent color">
+        <button class="swatch swatch-sage active" data-color="sage" aria-label="Sage green"></button>
+        <button class="swatch swatch-amber" data-color="amber" aria-label="Amber"></button>
+        <button class="swatch swatch-rose" data-color="rose" aria-label="Rose"></button>
+        <button class="swatch swatch-sky" data-color="sky" aria-label="Sky blue"></button>
+        <button class="swatch swatch-lavender" data-color="lavender" aria-label="Lavender"></button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content" id="mainContent">
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">☰</button>
+      <span class="mobile-title">Focus ✦</span>
+      <button class="theme-toggle-mobile" id="themeToggleMobile" aria-label="Toggle theme">☾</button>
+    </header>
+
+    <!-- ======== OVERVIEW SECTION ======== -->
+    <section class="section active" id="section-overview">
+      <div class="section-header">
+        <h1 class="section-title" id="greetingText">Good morning, Student 👋</h1>
+        <p class="section-subtitle" id="dateText">Loading date...</p>
+      </div>
+
+      <div class="grid-overview">
+
+        <!-- Live Clock Card -->
+        <div class="card card-clock" role="region" aria-label="Live clock">
+          <div class="clock-display" id="clockDisplay">00:00:00</div>
+          <div class="clock-date" id="clockDate">Monday, 24 June 2026</div>
+          <div class="clock-period" id="clockPeriod">AM</div>
+        </div>
+
+        <!-- Daily Goal Card -->
+        <div class="card card-goal" role="region" aria-label="Daily goal">
+          <div class="card-label">Today's Goal</div>
+          <div class="goal-input-wrap" id="goalDisplayArea">
+            <input
+              type="text"
+              id="goalInput"
+              class="goal-input"
+              placeholder="What will you accomplish today?"
+              aria-label="Enter your daily goal"
+              maxlength="80"
+            />
+            <div class="goal-actions">
+              <button class="btn-small" id="saveGoalBtn" aria-label="Save goal">Save</button>
+            </div>
+          </div>
+          <div class="goal-display" id="goalDisplay" style="display:none;">
+            <p class="goal-text" id="goalText"></p>
+            <div class="goal-check-row">
+              <label class="checkbox-label" for="goalDone">
+                <input type="checkbox" id="goalDone" aria-label="Mark goal as complete" />
+                <span class="checkbox-custom"></span>
+                Mark complete
+              </label>
+              <button class="btn-ghost-small" id="editGoalBtn">Edit</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Tracker Card -->
+        <div class="card card-progress" role="region" aria-label="Task progress tracker">
+          <div class="card-label">Progress</div>
+          <div class="progress-stats">
+            <div class="stat-item">
+              <span class="stat-number" id="completedCount">0</span>
+              <span class="stat-label">done</span>
+            </div>
+            <div class="stat-divider">/</div>
+            <div class="stat-item">
+              <span class="stat-number" id="totalCount">0</span>
+              <span class="stat-label">total</span>
+            </div>
+          </div>
+          <div class="progress-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBarWrap">
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+            <span class="progress-percent" id="progressPercent">0%</span>
+          </div>
+        </div>
+
+        <!-- Calendar Card -->
+        <div class="card card-calendar" role="region" aria-label="Calendar">
+          <div class="card-label">
+            <button class="cal-nav" id="calPrev" aria-label="Previous month">‹</button>
+            <span id="calMonthYear">June 2026</span>
+            <button class="cal-nav" id="calNext" aria-label="Next month">›</button>
+          </div>
+          <div class="calendar-grid" id="calendarGrid" role="grid" aria-label="Calendar days"></div>
+        </div>
+
+        <!-- Motivational Quote Card -->
+        <div class="card card-quote" role="region" aria-label="Motivational quote">
+          <div class="card-label">A thought</div>
+          <blockquote class="quote-text" id="quoteText">Loading...</blockquote>
+          <cite class="quote-author" id="quoteAuthor">—</cite>
+          <button class="btn-ghost-small quote-next" id="nextQuoteBtn" aria-label="Next quote">Next →</button>
+        </div>
+
+        <!-- Weather Card -->
+        <div class="card card-weather" role="region" aria-label="Weather widget">
+          <div class="card-label">Weather</div>
+          <div class="weather-body" id="weatherBody">
+            <div class="weather-icon" id="weatherIcon">☁</div>
+            <div class="weather-info">
+              <div class="weather-temp" id="weatherTemp">—°C</div>
+              <div class="weather-desc" id="weatherDesc">Loading...</div>
+              <div class="weather-city" id="weatherCity">—</div>
+            </div>
+          </div>
+          <div class="weather-detail">
+            <span id="weatherHumidity">Humidity: —%</span>
+          </div>
+          <div class="weather-city-input-row">
+            <input type="text" id="weatherCityInput" class="inline-input" placeholder="Change city..." aria-label="Enter city name" />
+            <button class="btn-small" id="fetchWeatherBtn">Go</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======== TASKS SECTION ======== -->
+    <section class="section" id="section-tasks">
+      <div class="section-header">
+        <h1 class="section-title">Tasks</h1>
+        <p class="section-subtitle">Stay on top of what matters.</p>
+      </div>
+
+      <div class="card card-full">
+        <div class="task-toolbar">
+          <input type="text" id="taskInput" class="task-search-input" placeholder="Add a new task... (Ctrl+T)" aria-label="New task input" />
+          <button class="btn-primary" id="addTaskBtn" aria-label="Add task">Add</button>
+        </div>
+        <div class="task-filters">
+          <input type="text" id="taskSearch" class="inline-input" placeholder="Search tasks..." aria-label="Search tasks" />
+          <select id="taskSort" class="inline-select" aria-label="Sort tasks">
+            <option value="default">Order added</option>
+            <option value="alpha">A → Z</option>
+            <option value="done">Done first</option>
+            <option value="undone">Undone first</option>
+          </select>
+        </div>
+        <div class="task-count-row">
+          <span id="taskCountLabel">0 tasks</span>
+        </div>
+        <ul class="task-list" id="taskList" aria-label="Task list" role="list"></ul>
+      </div>
+    </section>
+
+    <!-- ======== NOTES SECTION ======== -->
+    <section class="section" id="section-notes">
+      <div class="section-header">
+        <h1 class="section-title">Notes</h1>
+        <p class="section-subtitle">Quick thoughts and references.</p>
+      </div>
+
+      <div class="notes-layout">
+        <div class="card card-notes-sidebar">
+          <div class="notes-list-header">
+            <span class="card-label">All notes</span>
+            <button class="btn-small" id="newNoteBtn" aria-label="New note (Ctrl+N)">+ New</button>
+          </div>
+          <ul class="notes-list" id="notesList" role="list" aria-label="Notes list"></ul>
+        </div>
+        <div class="card card-notes-editor">
+          <div class="notes-editor-empty" id="notesEditorEmpty">
+            <span class="empty-icon">◇</span>
+            <p>Select a note or create a new one.</p>
+          </div>
+          <div class="notes-editor-active" id="notesEditorActive" style="display:none;">
+            <input type="text" id="noteTitleInput" class="note-title-input" placeholder="Note title..." aria-label="Note title" />
+            <textarea id="noteBodyInput" class="note-body-input" placeholder="Start writing..." aria-label="Note body"></textarea>
+            <div class="notes-editor-footer">
+              <span class="note-autosave-label" id="autosaveLabel">Auto-saved</span>
+              <button class="btn-danger-small" id="deleteNoteBtn" aria-label="Delete note">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======== TIMER SECTION ======== -->
+    <section class="section" id="section-timer">
+      <div class="section-header">
+        <h1 class="section-title">Pomodoro</h1>
+        <p class="section-subtitle">Work in focused intervals.</p>
+      </div>
+
+      <div class="timer-layout">
+        <div class="card card-pomodoro">
+          <!-- Circular SVG Timer -->
+          <div class="pomodoro-ring-wrap" role="img" aria-label="Pomodoro timer ring">
+            <svg class="pomodoro-ring" viewBox="0 0 200 200" aria-hidden="true">
+              <circle class="ring-track" cx="100" cy="100" r="88" />
+              <circle class="ring-fill" id="ringFill" cx="100" cy="100" r="88"
+                stroke-dasharray="553"
+                stroke-dashoffset="0"
+                transform="rotate(-90 100 100)"
+              />
+            </svg>
+            <div class="pomodoro-center">
+              <div class="pomodoro-time" id="pomodoroTime">25:00</div>
+              <div class="pomodoro-session" id="pomodoroSession">Focus</div>
+            </div>
+          </div>
+
+          <div class="pomodoro-controls">
+            <button class="btn-primary pomo-btn" id="pomodoroStart" aria-label="Start timer">Start</button>
+            <button class="btn-ghost pomo-btn" id="pomodoroPause" aria-label="Pause timer" disabled>Pause</button>
+            <button class="btn-ghost pomo-btn" id="pomodoroReset" aria-label="Reset timer">Reset</button>
+          </div>
+
+          <div class="pomodoro-settings">
+            <span class="card-label">Duration (min)</span>
+            <div class="duration-options" role="group" aria-label="Timer duration">
+              <button class="duration-btn active" data-minutes="25" aria-pressed="true">25</button>
+              <button class="duration-btn" data-minutes="30" aria-pressed="false">30</button>
+              <button class="duration-btn" data-minutes="45" aria-pressed="false">45</button>
+              <button class="duration-btn" data-minutes="60" aria-pressed="false">60</button>
+            </div>
+          </div>
+
+          <div class="pomodoro-sessions-row">
+            <span class="card-label">Sessions today: </span>
+            <span id="pomodoroSessionCount" class="accent-text">0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======== HABITS SECTION ======== -->
+    <section class="section" id="section-habits">
+      <div class="section-header">
+        <h1 class="section-title">Habits</h1>
+        <p class="section-subtitle">Small actions, compounded daily.</p>
+      </div>
+
+      <div class="card card-full">
+        <div class="habits-grid" id="habitsGrid" role="list" aria-label="Habit tracker"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Keyboard shortcut hint -->
+  <div class="shortcuts-hint" id="shortcutsHint" aria-hidden="true">
+    <span>Ctrl+N · Note</span>
+    <span>Ctrl+T · Task</span>
+    <span>Ctrl+D · Theme</span>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
